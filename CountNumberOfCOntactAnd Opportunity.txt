@@ -28,3 +28,11 @@
         }
         
 }
+        when AFTER_INSERT,AFTER_UPDATE,AFTER_UNDELETE{
+            ContactHandler.countNumberOfContactsAssociated(Trigger.new);
+			//ContactHandler.countAvfOfAllContactBirthDateAndUpdateInAccount(Trigger.new);
+            //ContactHandler.shareRecordToPublicGroup(Trigger.new);
+        }
+        when AFTER_DELETE{
+            ContactHandler.countNumberOfContactsAssociated(Trigger.old);
+        }
