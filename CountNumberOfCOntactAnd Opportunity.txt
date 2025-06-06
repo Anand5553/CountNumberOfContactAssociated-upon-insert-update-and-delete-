@@ -1,0 +1,30 @@
+    public static void countNumberOfContactsAssociated(List<Contact> contacts) {
+        Set<Id> accId = new Set<Id>();
+        Map<Id,Integer> accVsConNumber = new Map<Id,Integer>();
+        for(Contact con : contacts){
+            if(con.AccountId != null){
+                 accId.add(con.AccountId);
+            }
+        }  
+        
+        if(accId.isEmpty()) return;
+        
+    	List<AggregateResult> conList = [SELECT AccountId, COUNT(ID) total from Contact WHERE AccountId IN : accId GROUP BY AccountId];
+        //above query gives like this {AccountId=001dL00000Yt6CXQAZ, total=3}) AggregateResult is a special type used for SOQL aggregate results
+        
+        for(AggregateResult ar : conList){
+            accVsConNumber.put((Id)ar.get('AccountId'),(Integer)ar.get('total'));
+        }
+        
+        List<Account> accToUpdate = new List<Account>();
+        
+        for(id accountId : accId){
+            Integer count = accVsConNumber.containsKey(accountId) ? accVsConNumber.get(accountId) : 0;
+            accToUpdate.add(new Account(Id = accountId,Number_Of_Contact_associated__c = count));
+        }
+        
+        if(!accToUpdate.isEmpty()){
+            update accToUpdate;
+        }
+        
+}
